@@ -4,7 +4,7 @@ session_start();
 
 // Database configuration
 define('DB_HOST', 'localhost');
-define('DB_NAME', 'U834808878_microdocs_db');
+define('DB_NAME', 'u834808878_microdocs_db');
 define('DB_USER', 'u834808878_docsAdmin');
 define('DB_PASS', 'Ossouka@1968');
 
