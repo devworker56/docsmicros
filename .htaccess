@@ -1,0 +1,78 @@
+# docs.aidveritas.com/.htaccess
+RewriteEngine On
+
+# Force HTTPS (optional but recommended)
+# RewriteCond %{HTTPS} off
+# RewriteRule ^(.*)$ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
+
+# Remove trailing slashes
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^(.*)/$ /$1 [L,R=301]
+
+# Security headers
+<IfModule mod_headers.c>
+    # Prevent XSS attacks
+    Header set X-XSS-Protection "1; mode=block"
+    
+    # Prevent MIME type sniffing
+    Header set X-Content-Type-Options "nosniff"
+    
+    # Prevent clickjacking
+    Header set X-Frame-Options "SAMEORIGIN"
+    
+    # Referrer policy
+    Header set Referrer-Policy "strict-origin-when-cross-origin"
+    
+    # Content Security Policy
+    Header set Content-Security-Policy "default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com; font-src 'self' https://cdnjs.cloudflare.com; img-src 'self' data: https:;"
+</IfModule>
+
+# Cache control for static assets
+<FilesMatch "\.(css|js|png|jpg|jpeg|gif|ico|svg|woff|woff2)$">
+    <IfModule mod_headers.c>
+        Header set Cache-Control "max-age=31536000, public"
+    </IfModule>
+</FilesMatch>
+
+# Cache control for HTML pages
+<FilesMatch "\.(php|html)$">
+    <IfModule mod_headers.c>
+        Header set Cache-Control "no-cache, no-store, must-revalidate"
+    </IfModule>
+</FilesMatch>
+
+# Prevent access to sensitive files
+<FilesMatch "^(\.htaccess|\.htpasswd|config\.php|database\.php|composer\.json|composer\.lock)$">
+    Order deny,allow
+    Deny from all
+</FilesMatch>
+
+# Custom error pages
+ErrorDocument 404 /404.php
+ErrorDocument 403 /403.php
+ErrorDocument 500 /500.php
+
+# URL rewriting for pretty URLs
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+
+# Rewrite for section pages: /for-donors -> section.php?id=1
+RewriteRule ^for-donors/?$ section.php?id=1 [L,QSA]
+RewriteRule ^for-organizations/?$ section.php?id=2 [L,QSA] 
+RewriteRule ^for-businesses/?$ section.php?id=3 [L,QSA]
+
+# Rewrite for chapter pages: /for-donors/app-guide -> chapter.php?slug=app-guide
+RewriteRule ^([^/]+)/([^/]+)/?$ chapter.php?section=$1&chapter=$2 [L,QSA]
+
+# Rewrite for individual pages: /for-donors/app-guide/installation -> page.php?slug=installation
+RewriteRule ^([^/]+)/([^/]+)/([^/]+)/?$ page.php?slug=$3 [L,QSA]
+
+# PHP settings (adjust based on your hosting)
+<IfModule mod_php.c>
+    php_value upload_max_filesize 10M
+    php_value post_max_size 10M
+    php_value max_execution_time 300
+    php_value memory_limit 256M
+    php_value display_errors Off
+    php_value log_errors On
+</IfModule>
