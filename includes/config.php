@@ -1,6 +1,6 @@
 <?php
 // config.php
-session_start();
+//session_start();
 
 // Database configuration
 define('DB_HOST', 'localhost');
