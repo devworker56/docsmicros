@@ -1,14 +1,13 @@
 <?php
-// admin/login.php - Admin login page for Documentation Portal
+// admin/login.php - CORRECTED VERSION
 session_start();
+
 require_once '../includes/config.php';
 require_once '../includes/database.php';
 
-// Redirect if already logged in (documentation portal session only)
-if (isset($_SESSION['admin_logged_in']) && $_SESSION['admin_logged_in'] === true) {
-    header('Location: /admin/index.php');
-    exit;
-}
+// DEBUG: Remove this after it works
+error_reporting(E_ALL);
+ini_set('display_errors', 1);
 
 $error = '';
 $success = '';
@@ -37,7 +36,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $_SESSION['admin_user_id'] = $user['id'];
                 $_SESSION['admin_role'] = $user['role'];
                 
-                header('Location: /admin/index.php');
+                header('Location: index.php');
                 exit;
             } else {
                 $error = $current_language === 'fr'
