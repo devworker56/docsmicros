@@ -1,11 +1,11 @@
 <?php
-// admin/login.php - Admin login page for Documentation Portal
+// admin/login.php - Admin login page
 require_once '../includes/config.php';
 require_once '../includes/database.php';
 
-// Redirect if already logged in (documentation portal session only)
+// Redirect if already logged in
 if (isset($_SESSION['admin_logged_in']) && $_SESSION['admin_logged_in'] === true) {
-    header('Location: /admin/index.php');
+    header('Location: /admin/index.php');  // FIXED: Added full path
     exit;
 }
 
@@ -25,28 +25,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $db = new Database();
         $conn = $db->getConnection();
         
-        if ($conn) {
-            $stmt = $conn->prepare("SELECT * FROM admin_users WHERE username = ? AND is_active = TRUE");
-            $stmt->execute([$username]);
-            $user = $stmt->fetch();
+        $stmt = $conn->prepare("SELECT * FROM admin_users WHERE username = ? AND is_active = TRUE");
+        $stmt->execute([$username]);
+        $user = $stmt->fetch();
+        
+        if ($user && password_verify($password, $user['password_hash'])) {
+            $_SESSION['admin_logged_in'] = true;
+            $_SESSION['admin_username'] = $user['username'];
+            $_SESSION['admin_user_id'] = $user['id'];
+            $_SESSION['admin_role'] = $user['role'];
             
-            if ($user && password_verify($password, $user['password_hash'])) {
-                $_SESSION['admin_logged_in'] = true;
-                $_SESSION['admin_username'] = $user['username'];
-                $_SESSION['admin_user_id'] = $user['id'];
-                $_SESSION['admin_role'] = $user['role'];
-                
-                header('Location: /admin/index.php');
-                exit;
-            } else {
-                $error = $current_language === 'fr'
-                    ? 'Nom d\'utilisateur ou mot de passe incorrect.'
-                    : 'Invalid username or password.';
-            }
+            header('Location: /admin/index.php');  // FIXED: Added full path
+            exit;
         } else {
             $error = $current_language === 'fr'
-                ? 'Erreur de connexion à la base de données.'
-                : 'Database connection error.';
+                ? 'Nom d\'utilisateur ou mot de passe incorrect.'
+                : 'Invalid username or password.';
         }
     }
 }
@@ -75,26 +69,20 @@ $page_title = $current_language === 'fr' ? 'Connexion Admin' : 'Admin Login';
                                 <i class="fas fa-shield shield-icon"></i>
                                 <i class="fas fa-hand-holding-heart heart-icon"></i>
                             </span>
-                            AidVeritas Docs Admin
+                            AidVeritas Admin
                         </h3>
                     </div>
                     <div class="card-body p-4">
                         <h4 class="card-title text-center mb-4">
-                            <?php echo $current_language === 'fr' ? 'Connexion Admin' : 'Admin Login'; ?>
+                            <?php echo $current_language === 'fr' ? 'Connexion' : 'Login'; ?>
                         </h4>
                         
                         <?php if ($error): ?>
-                        <div class="alert alert-danger">
-                            <i class="fas fa-exclamation-triangle me-2"></i>
-                            <?php echo $error; ?>
-                        </div>
+                        <div class="alert alert-danger"><?php echo $error; ?></div>
                         <?php endif; ?>
                         
                         <?php if ($success): ?>
-                        <div class="alert alert-success">
-                            <i class="fas fa-check-circle me-2"></i>
-                            <?php echo $success; ?>
-                        </div>
+                        <div class="alert alert-success"><?php echo $success; ?></div>
                         <?php endif; ?>
                         
                         <form method="POST" action="">
@@ -105,8 +93,7 @@ $page_title = $current_language === 'fr' ? 'Connexion Admin' : 'Admin Login';
                                 </label>
                                 <input type="text" class="form-control" id="username" name="username" 
                                        value="<?php echo isset($_POST['username']) ? htmlspecialchars($_POST['username']) : ''; ?>" 
-                                       required
-                                       placeholder="<?php echo $current_language === 'fr' ? 'Entrez votre nom d\'utilisateur' : 'Enter your username'; ?>">
+                                       required>
                             </div>
                             
                             <div class="mb-4">
@@ -114,9 +101,7 @@ $page_title = $current_language === 'fr' ? 'Connexion Admin' : 'Admin Login';
                                     <i class="fas fa-lock me-2"></i>
                                     <?php echo $current_language === 'fr' ? 'Mot de passe' : 'Password'; ?>
                                 </label>
-                                <input type="password" class="form-control" id="password" name="password" 
-                                       required
-                                       placeholder="<?php echo $current_language === 'fr' ? 'Entrez votre mot de passe' : 'Enter your password'; ?>">
+                                <input type="password" class="form-control" id="password" name="password" required>
                             </div>
                             
                             <button type="submit" class="btn btn-primary w-100 mb-3">
