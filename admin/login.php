@@ -1,5 +1,6 @@
 <?php
 // admin/login.php - Admin login page for Documentation Portal
+session_start();
 require_once '../includes/config.php';
 require_once '../includes/database.php';
 
