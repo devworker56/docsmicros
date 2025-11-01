@@ -1,6 +1,9 @@
 # docs.aidveritas.com/.htaccess
 RewriteEngine On
 
+# EXCLUDE ADMIN DIRECTORY FROM REWRITES - CRITICAL FIX
+RewriteRule ^admin/ - [L]
+
 # Force HTTPS (optional but recommended)
 # RewriteCond %{HTTPS} off
 # RewriteRule ^(.*)$ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
@@ -61,7 +64,7 @@ RewriteRule ^for-donors/?$ section.php?id=1 [L,QSA]
 RewriteRule ^for-organizations/?$ section.php?id=2 [L,QSA] 
 RewriteRule ^for-businesses/?$ section.php?id=3 [L,QSA]
 
-# Rewrite for chapter pages: /for-donors/app-guide -> chapter.php?slug=app-guide
+# Rewrite for chapter pages: /for-donors/app-guide -> chapter.php?section=for-donors&chapter=app-guide
 RewriteRule ^([^/]+)/([^/]+)/?$ chapter.php?section=$1&chapter=$2 [L,QSA]
 
 # Rewrite for individual pages: /for-donors/app-guide/installation -> page.php?slug=installation
